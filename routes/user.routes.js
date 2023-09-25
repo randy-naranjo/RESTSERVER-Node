@@ -7,14 +7,16 @@ const {
   usersPost,
   usersDelete,
 } = require("../controllers/user.controllers");
-const { isValidRole, emailTaken, userExistsById } = require("../helpers/db-validators");
+const { isValidRole, emailTaken, checkIfEntityExistsById } = require("../helpers/db-validators");
 
 const {
   validateFields,
-  isAdminRole,
   hasRole,
   validateJWT
-} = require('../middlewares')
+} = require('../middlewares');
+const { User } = require("../models");
+
+const userExistById = checkIfEntityExistsById(User)
 
 const router = Router();
 
@@ -22,14 +24,14 @@ router.get("/", usersGet);
 
 router.put("/:id",[
   check('id', 'Id Not Valid').isMongoId(),
-  check('id').custom( userExistsById ),
+  check('id').custom( userExistById ),
   check('role').custom( isValidRole ),
   validateFields
 ], usersPut);
 
 router.post("/", [
   check('name', 'Name is required').not().isEmpty(),
-  check('password', 'Password is requireda and must have at least 6 characters').isLength({min: 6}),
+  check('password', 'Password is required and must have at least 6 characters').isLength({min: 6}),
   check('email', 'Email not valid').isEmail(),
   check('email').custom( emailTaken ),
   check('role').custom( isValidRole ),
@@ -41,7 +43,7 @@ router.delete("/:id",[
   // isAdminRole,
   hasRole('ADMIN_ROLE','SELLER_ROLE'),
   check('id', 'Id Not Valid').isMongoId(),
-  check('id').custom( userExistsById ),
+  check('id').custom( userExistById ),
   validateFields
 ],usersDelete);
 

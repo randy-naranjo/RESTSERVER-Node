@@ -1,14 +1,14 @@
 
 const { response, request } = require('express')
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const { User } = require('../models');
 
 validateJWT = async(req = request, res = response, next) => {
 
   const bearerToken = req.headers.authorization
 
   if (!(bearerToken && bearerToken.startsWith('Bearer '))) {
-    res.status(401).json({
+    return res.status(401).json({
       msg: 'Unauthorize'
     });
   }
